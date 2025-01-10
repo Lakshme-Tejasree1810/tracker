@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .nav-bar {
+            width: 200px; /* Fixed width for the nav bar */
+            background-color: #87898d;
+            border-right: 1px solid #d1d5db;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .nav-item:hover {
+            background-color: #e5e7eb;
+        }
+
+        .nav-item.active {
+            background-color: #d1d5db;
+        }
+
+        #content {
+            margin-left: 200px; /* Same as the nav bar width */
+            padding: 20px;
+            width: calc(100% - 200px); /* Prevent overlap by subtracting nav bar width */
+            overflow-y: auto; /* Ensure scrolling if content exceeds viewport */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="nav-bar">
+        <!-- <h2 class="text-xl font-bold px-4">Admin Dashboard</h2> -->
+        <div id="createTaskNav" class="nav-item">Create Task</div>
+        <div id="taskListNav" class="nav-item active">Task List</div>
+        <div id="filterNav" class="nav-item">Filter Tasks</div>
+        <div id="logoutNav" class="nav-item">Logout</div>
+    </div>
+    <div id="content" class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+        
+        <div class="mb-6" style="display: none;" id="createtask">
+            <h2 class="text-2xl font-semibold mb-4">Create New Task</h2>
+            <form id="taskForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                        Title
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="title" type="text" placeholder="Task Title" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
+                        Description
+                    </label>
+                    <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="description" placeholder="Task Description" required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="priority">
+                        Priority
+                    </label>
+                    <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="priority" required>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="status">
+                        Status
+                    </label>
+                    <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="status" required>
+                        <option value="inprogress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="dueDate">
+                        Due Date
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="dueDate" type="text" placeholder="Select Due Date" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="assignedTo" >
+                        Assigned To (comma-separated for multiple users)
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="assignedTo" type="text" placeholder="user1, user2, user3" required>
+                </div>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" id="hide" type="submit">
+                    Submit
+                </button>
+            </form>
+        </div>
+        <div id = "filter" style="display: none;">
+        <div class="mb-6">
+            <h2 class="text-2xl font-semibold mb-4">Task List</h2>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="filterUser">
+                    Filter by User:
+                </label>
+                <select class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="filterUser">
+                    <option value="">All Users</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="filterPriority">
+                    Filter by Priority:
+                </label>
+                <select class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="filterPriority">
+                    <option value="">All Priorities</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="filterDueDate">
+                    Filter by Due Date:
+                </label>
+                <input class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="filterDueDate" type="text" placeholder="Select Due Date">
+            </div>
+            </div>
+        </div>
+            <div id = "tasklist">
+            <h2 class="text-2xl font-semibold mb-4">Task List</h2>
+            <table class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="taskList">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        let currentUser = '';
+        let allTasks = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("#dueDate", {
+                dateFormat: "Y-m-d",
+            });
+
+            flatpickr("#filterDueDate", {
+                dateFormat: "Y-m-d",
+            });
+
+            fetchUsers();
+            fetchTasks();
+            document.getElementById('createTaskNav').addEventListener('click',()=> {
+                console.log("called")
+                document.getElementById('createtask').style.display='block';
+                // document.getElementById('createTaskNav').style.display='none';
+                document.getElementById('taskList').style.display='none';
+                document.getElementById('filter').style.display='none';
+                document.getElementById('tasklist').style.display='none';
+            });
+            document.getElementById('hide').addEventListener('click',()=> {
+                console.log("called")
+                document.getElementById('createTaskNav').style.display='block';
+                document.getElementById('createtask').style.display='none';
+            });
+
+            document.getElementById('taskListNav').addEventListener('click',()=> {
+                console.log("called")
+                document.getElementById('taskList').style.display='block';
+                // document.getElementById('taskListNav').style.display='none';
+                document.getElementById('createtask').style.display='none';
+                document.getElementById('filter').style.display='none';
+                document.getElementById('tasklist').style.display='none';
+            });
+
+            document.getElementById('filterNav').addEventListener('click',()=> {
+                console.log("called")
+                document.getElementById('filter').style.display='block';
+                // document.getElementById('taskListNav').style.display='none';
+                document.getElementById('taskList').style.display='none';
+                document.getElementById('createtask').style.display='none';
+                document.getElementById('tasklist').style.display='none';
+            });
+            document.getElementById('filter').addEventListener('click',()=> {
+                console.log("called")
+                document.getElementById('filterNav').style.display='block';
+                document.getElementById('filter').style.display='none';
+            });
+            
+
+            document.getElementById('taskForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const title = document.getElementById('title').value;
+                const description = document.getElementById('description').value;
+                const priority = document.getElementById('priority').value;
+                const status = document.getElementById('status').value;
+                const dueDate = document.getElementById('dueDate').value;
+                const assignedTo = document.getElementById('assignedTo').value;
+
+                createTask(title, description, priority, status, dueDate, assignedTo);
+            });
+
+            document.getElementById('filterUser').addEventListener('change', filterTasks);
+            document.getElementById('filterPriority').addEventListener('change', filterTasks);
+            document.getElementById('filterDueDate').addEventListener('change', filterTasks);
+        });
+
+        async function fetchUsers() {
+            const response = await fetch('/get_users');
+            const users = await response.json();
+            const filterUserSelect = document.getElementById('filterUser');
+
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.username;
+                option.textContent = user.username;
+                filterUserSelect.appendChild(option);
+            });
+        }
+
+        async function fetchTasks() {
+            const response = await fetch('/get_tasks');
+            allTasks = await response.json();
+            renderTasks(allTasks);
+        }
+
+        function renderTasks(tasks) {
+            console.log("Tasks:", tasks);
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+
+            tasks.forEach(task => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="py-2 px-4 border-b border-gray-200">${task.title}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">${task.description}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">${task.priority}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">${task.status}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">${task.dueDate}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">${Array.isArray(task.assignedTo) ? task.assignedTo.join(', ') : task.assignedTo}</td>
+                    <td class="py-2 px-4 border-b border-gray-200">
+                        <button onclick="editTask('${task._id}')" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded mr-2">Edit</button>
+                        <button onclick="deleteTask('${task._id}')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded">Delete</button>
+                    </td>
+                `;
+                taskList.appendChild(row);
+            });
+        }
+
+        async function createTask(title, description, priority, status, dueDate, assignedTo) {
+            const response = await fetch('/create_task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `title=${title}&description=${description}&priority=${priority}&status=${status}&due_date=${dueDate}&assigned_to=${assignedTo}`
+            });
+
+            if (response.ok) {
+                fetchTasks();
+                document.getElementById('taskForm').reset();
+            } else {
+                alert('Failed to create task');
+            }
+        }
+
+        async function editTask(taskId) {
+            const task = allTasks.find(t => t._id === taskId);
+            console.log(task)
+            if (task) {
+                document.getElementById('title').value = task.title;
+                document.getElementById('description').value = task.description;
+                document.getElementById('priority').value = task.priority;
+                document.getElementById('status').value = task.status;
+                document.getElementById('dueDate').value = task.due_date;
+                document.getElementById('assignedTo').value = Array.isArray(task.assignedTo) ? task.assignedTo.join(', ') : task.assignedTo;
+
+                document.getElementById('taskForm').onsubmit = async function(e) {
+                    e.preventDefault();
+                    const response = await fetch(`/update_task/${taskId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams(new FormData(e.target))
+                    });
+
+                    if (response.ok) {
+                        fetchTasks();
+                        document.getElementById('taskForm').reset();
+                        document.getElementById('taskForm').onsubmit = null;
+                    } else {
+                        alert('Failed to update task');
+                    }
+                };
+            }
+        }
+
+        async function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                const response = await fetch(`/delete_task/${taskId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    fetchTasks();
+                } else {
+                    alert('Failed to delete task');
+                }
+            }
+        }
+
+        function filterTasks() {
+            const userFilter = document.getElementById('filterUser').value;
+            const priorityFilter = document.getElementById('filterPriority').value;
+            const dueDateFilter = document.getElementById('filterDueDate').value;
+
+            const filteredTasks = allTasks.filter(task => {
+                return (!userFilter || task.assignedTo.includes(userFilter)) &&
+                       (!priorityFilter || task.priority === priorityFilter) &&
+                       (!dueDateFilter || task.due_date === dueDateFilter);
+            });
+
+            renderTasks(filteredTasks);
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+        const navItems = {
+            createTaskNav: "createTaskSection",
+            taskListNav: "taskListSection",
+            filterNav: "filterSection",
+        };
+
+        for (let [navId, sectionId] of Object.entries(navItems)) {
+            document.getElementById(navId).addEventListener("click", function () {
+                Object.values(navItems).forEach((id) => document.getElementById(id).style.display = "none");
+                document.getElementById(sectionId).style.display = "block";
+
+                document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+                this.classList.add("active");
+            });
+        }
+
+        document.getElementById("logoutNav").addEventListener("click", function () {
+            if (confirm("Are you sure you want to logout?")) {
+                window.location.href = "/logout";
+            }
+        });
+    });
+    </script>
+</body>
+</html>
